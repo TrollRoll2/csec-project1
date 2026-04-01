@@ -1,0 +1,18 @@
+<h1>{{ user.username }}'s polls</h1>
+
+<ul>
+{% for question in latest_poll_list %}
+    <li>
+        {{ question.question_text }}
+        <form action="{% url 'polls:delete' question.id %}" method="post">
+            {% csrf_token %}
+            <input type="submit" value="Delete">
+        </form>
+    </li>
+{% empty %}
+    <li>No polls are available.</li>
+{% endfor %}
+</ul>
+
+<a href="{% url 'account:logout' %}">Logout</a>
+<a href="{% url 'polls:index' %}">Frontpage</a>

@@ -1,0 +1,34 @@
+<form action="{% url 'polls:vote' question.id %}" method="post">
+{% csrf_token %}
+<fieldset>
+    <legend><h1>{{ question.question_text }}</h1></legend>
+    {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+    {% for choice in question.choice_set.all %}
+        <input type="radio" name="choice" id="choice{{ forloop.counter }}" value="{{ choice.id }}">
+        <label for="choice{{ forloop.counter }}">{{ choice.choice_text }}</label><br>
+    {% endfor %}
+</fieldset>
+<input type="submit" value="Vote">
+</form>
+
+{% if user.is_authenticated and question.author == user %}
+    <h3>Add a choice</h3>
+
+    <form action="{% url 'polls:add_choice' question.id %}" method="post">
+        {% csrf_token %}
+        <input type="text" name="choice_text">
+        <input type="submit" value="Add choice">
+    </form>
+{% endif %}
+
+<a href="{% url 'polls:index' %}">Frontpage</a>
+
+{% if user.is_authenticated %}
+    <p>Logged in as {{ user.username }}</p>
+    <a href="{% url 'polls:create' %}">Create a poll</a>
+    <a href="{% url 'account:profile' %}">My profile</a>
+    <a href="{% url 'account:logout' %}">Logout</a>
+{% else %}
+    <a href="{% url 'account:signup' %}">Sign up</a>
+    <a href="{% url 'account:login' %}">Log in</a>
+{% endif %}

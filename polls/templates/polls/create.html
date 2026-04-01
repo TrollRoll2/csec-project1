@@ -1,0 +1,26 @@
+<h1>Create a new poll</h1>
+
+{% if error_message %}
+    <p><strong>{{ error_message }}</strong></p>
+{% endif %}
+
+<form action="{% url 'polls:create' %}" method="post">
+    {% csrf_token %}
+
+    <label for="question_text">Question:</label>
+    <input type="text" name="question_text" id="question_text">
+
+    <input type="submit" value="Create">
+</form>
+
+<a href="{% url 'polls:index' %}">Frontpage</a>
+
+{% if user.is_authenticated %}
+    <p>Logged in as {{ user.username }}</p>
+    <a href="{% url 'polls:create' %}">Create a poll</a>
+    <a href="{% url 'account:profile' %}">My profile</a>
+    <a href="{% url 'account:logout' %}">Logout</a>
+{% else %}
+    <a href="{% url 'account:signup' %}">Sign up</a>
+    <a href="{% url 'account:login' %}">Log in</a>
+{% endif %}
