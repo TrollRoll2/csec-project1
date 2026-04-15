@@ -75,19 +75,19 @@ class AddChoiceView(LoginRequiredMixin, View):
             return HttpResponseForbidden("Only the author may add choices.")
 
         choice_text = request.POST.get("choice_text")
-        cursor = connection.cursor()
-        query = "SELECT id, question_text FROM polls_question WHERE question_text = '%s'" % choice_text
+        cursor = connection.cursor() #Remove this line
+        query = "SELECT id, question_text FROM polls_question WHERE question_text = '%s'" % choice_text #Remove this line
 
 # A05:2025, Injection is possible here due to the user input not being filtered. The cursor and query functionality should be removed, as well as the try-except block.
 
-        try:
-            cursor.execute(query)
-            results = cursor.fetchall()
-        except Exception as e:
-            return render(request, "polls/detail.html", {
-                "question": question,
-                "error_message": str(e),
-            })
+        try: #Remove this line
+            cursor.execute(query) #Remove this line
+            results = cursor.fetchall() #Remove this line
+        except Exception as e:  #Remove this line
+            return render(request, "polls/detail.html", { #Remove this line
+                "question": question, #Remove this line
+                "error_message": str(e), #Remove this line
+            }) #Remove this line
         
 # A10:2025, Mishandling of exceptional conditions is prevalent here, as the error message provides information about the SQL query and error, which could be
 # used in refining an SQL-injection. The error message should be more general and not reveal information.
