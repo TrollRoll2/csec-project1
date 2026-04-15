@@ -19,6 +19,12 @@
         <input type="text" name="choice_text">
         <input type="submit" value="Add choice">
     </form>
+    {% if messages %}
+        {% for message in messages %}
+            <div>{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
 {% endif %}
 
 <a href="{% url 'polls:index' %}">Frontpage</a>

@@ -4,6 +4,7 @@ from django.http import HttpResponseRedirect, HttpResponseForbidden
 from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
 from django.views import generic, View
+from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.utils import timezone
 
@@ -75,19 +76,6 @@ class AddChoiceView(LoginRequiredMixin, View):
             return HttpResponseForbidden("Only the author may add choices.")
 
         choice_text = request.POST.get("choice_text")
-        cursor = connection.cursor() #Remove this line
-        query = "SELECT id, question_text FROM polls_question WHERE question_text = '%s'" % choice_text #Remove this line
-
-# A05:2025, Injection is possible here due to the user input not being filtered. The cursor and query functionality should be removed, as well as the try-except block.
-
-        try: #Remove this line
-            cursor.execute(query) #Remove this line
-            results = cursor.fetchall() #Remove this line
-        except Exception as e:  #Remove this line
-            return render(request, "polls/detail.html", { #Remove this line
-                "question": question, #Remove this line
-                "error_message": str(e), #Remove this line
-            }) #Remove this line
         
 # A10:2025, Mishandling of exceptional conditions is prevalent here, as the error message provides information about the SQL query and error, which could be
 # used in refining an SQL-injection. The error message should be more general and not reveal information.
@@ -99,6 +87,26 @@ class AddChoiceView(LoginRequiredMixin, View):
             })
 
         question.choice_set.create(choice_text=choice_text, votes=0)
+
+        cursor = connection.cursor()
+        query = "SELECT id, question_text FROM polls_question WHERE question_text = '%s'" % choice_text
+
+        try:
+            cursor.execute(query)
+            results = cursor.fetchall()
+        except Exception as e:
+            return render(request, "polls/detail.html", {
+                "question": question,
+                "error_message": str(e),
+            })
+
+        messages.success(request, f"{results} added as choice to the poll")
+
+        #messages.success(request, f"{choice_text} added as choice to the poll")
+
+# A05:2025, Injection is possible in the above code due to the user input not being filtered.
+# To fix this, use the string choice_text directly or use sanitized input. The commented direct usage of choice_text would replace
+# the entire use of cursor and the try-except block
 
         return redirect("polls:detail", question.id)
 
