@@ -89,10 +89,14 @@ class AddChoiceView(LoginRequiredMixin, View):
         question.choice_set.create(choice_text=choice_text, votes=0)
 
         cursor = connection.cursor()
-        query = "SELECT id, question_text FROM polls_question WHERE question_text = '%s'" % choice_text
+        query = "SELECT c.choice_text FROM polls_choice c JOIN polls_question q ON c.question_id = q.id WHERE q.question_text = '%s' AND c.choice_text = '%s'" % (question.question_text, choice_text)
+#        query = "SELECT c.choice_text FROM polls_choice c JOIN polls_question q ON c.question_id = q.id WHERE q.question_text = %s AND c.choice_text = %s"
 
         try:
-            cursor.execute(query)
+            cursor.execute(
+                query,
+#                [question.question_text, choice_text]
+            )
             results = cursor.fetchall()
         except Exception as e:
             return render(request, "polls/detail.html", {
@@ -102,11 +106,8 @@ class AddChoiceView(LoginRequiredMixin, View):
 
         messages.success(request, f"{results} added as choice to the poll")
 
-        #messages.success(request, f"{choice_text} added as choice to the poll")
-
 # A05:2025, Injection is possible in the above code due to the user input not being filtered.
-# To fix this, use the string choice_text directly or use sanitized input. The commented direct usage of choice_text would replace
-# the entire use of cursor and the try-except block
+# To fix this, use the commented out query and the parameters in the cursor.execute function.
 
         return redirect("polls:detail", question.id)
 
